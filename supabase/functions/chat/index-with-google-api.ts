@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,25 +24,38 @@ serve(async (req) => {
       throw new Error('Message is required');
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    // Initialize Supabase client with service role
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Get Google API key from database
+    console.log('Fetching Google API key from database...');
+    const { data: apiKey, error: keyError } = await supabase.rpc('get_api_key', {
+      p_key_name: 'google_api_key'
+    });
+
+    if (keyError || !apiKey) {
+      console.error('Failed to retrieve Google API key:', keyError);
+      throw new Error('Google API key not configured');
     }
 
-    console.log('Sending message to Lovable AI');
+    console.log('Sending message to Google Gemini AI');
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { 
-            role: 'system', 
-            content: `You are Maya, a friendly and knowledgeable digital marketing consultant at i3infosoft. You speak naturally like a human expert who genuinely cares about helping businesses grow. Use conversational language, empathy, and occasional phrases like "I'd be happy to help," "Great question," or "Let me explain."
+    // Call Google Gemini API directly
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `You are Maya, a friendly and knowledgeable digital marketing consultant at i3infosoft. You speak naturally like a human expert who genuinely cares about helping businesses grow. Use conversational language, empathy, and occasional phrases like "I'd be happy to help," "Great question," or "Let me explain."
 
 ABOUT i3infosoft:
 i3infosoft is a leading digital transformation partner for small and mid-level businesses across India. We specialize in helping local businesses expand their reach and automate their operations using cutting-edge technology.
@@ -99,7 +113,7 @@ OUR CORE SERVICES:
 PRICING & PACKAGES:
 - **Starter Plan**: ₹14,999/month - Perfect for small businesses just getting started with digital marketing
 - **Growth Plan**: ₹29,999/month - For businesses ready to scale with automation and AI
-- **Enterprise Plan**: Custom pricing - Comprehensive solutions for established businesses
+- **Enterprise Plan**: ₹59,999/month - Comprehensive solutions for established businesses
 - All plans include: Monthly strategy calls, performance reports, and dedicated support
 - Free consultation to assess needs and recommend the right solution
 
@@ -124,72 +138,60 @@ CONVERSATION STYLE:
 - Keep responses concise but informative (2-4 sentences usually)
 - Show genuine interest in their business challenges
 
-Remember: You're not just providing information—you're building a relationship and helping them envision how i3infosoft can transform their business. Be helpful, be human, and be enthusiastic about their success!` 
+CONTACT INFORMATION:
+- Phone/WhatsApp: +91 81781 99664
+- Email: contact@i3infosoft.com
+- Website: Available for more information
+
+Remember: You're not just providing information—you're building a relationship and helping them envision how i3infosoft can transform their business. Be helpful, be human, and be enthusiastic about their success!
+
+User's message: ${message}`
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.8,
+            maxOutputTokens: 800,
+            topP: 0.95,
           },
-          { role: 'user', content: message }
-        ],
-        temperature: 0.8,
-        max_tokens: 800,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Lovable AI error:', response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ 
-            error: 'Rate limit exceeded',
-            response: 'Our AI is experiencing high demand. Please try again in a moment.'
-          }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ 
-            error: 'Payment required',
-            response: 'AI service temporarily unavailable. Please contact our team directly.'
-          }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      throw new Error(`AI Gateway error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('AI response received');
-    
-    const aiResponse = data.choices?.[0]?.message?.content || 
-      'I apologize, but I am unable to process your request at the moment. Please contact our team directly.';
-
-    return new Response(
-      JSON.stringify({ response: aiResponse }),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
+        }),
       }
     );
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Google API error:', errorText);
+      throw new Error(`Google API request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Extract the response text from Gemini's format
+    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
+
+    return new Response(
+      JSON.stringify({ 
+        response: aiResponse,
+        model: 'gemini-2.0-flash',
+        source: 'google-gemini-direct'
+      }),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
   } catch (error) {
     console.error('Error in chat function:', error);
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'An error occurred',
-        response: 'I apologize, but I am experiencing technical difficulties. Please try again or contact our team directly.'
+        error: error.message,
+        fallbackMessage: "I'm having trouble connecting right now. Please try WhatsApp: +91 81781 99664"
       }),
       { 
         status: 500,
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
   }
 });
+
