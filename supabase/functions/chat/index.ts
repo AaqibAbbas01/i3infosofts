@@ -17,44 +17,64 @@ serve(async (req) => {
       throw new Error('Message is required');
     }
 
-    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-    if (!GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY is not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    console.log('Sending message to Gemini:', message);
+    console.log('Sending message to Lovable AI');
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `You are an AI assistant for i3infosoft, a digital marketing and automation company. Help customers understand our services: Digital Marketing, SEO, Website/App Development, AI Chatbots, WhatsApp Automation, and Email Marketing. Our plans start from ₹14,999/month. Be helpful, professional, and concise.\n\nUser: ${message}`
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 500,
-          }
-        }),
-      }
-    );
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { 
+            role: 'system', 
+            content: 'You are an AI assistant for i3infosoft, a digital marketing and automation company. Help customers understand our services: Digital Marketing, SEO, Website/App Development, AI Chatbots, WhatsApp Automation, and Email Marketing. Our plans start from ₹14,999/month. Be helpful, professional, and concise.' 
+          },
+          { role: 'user', content: message }
+        ],
+        temperature: 0.7,
+        max_tokens: 500,
+      }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Gemini API error:', response.status, errorText);
-      throw new Error(`Gemini API error: ${response.status}`);
+      console.error('Lovable AI error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Rate limit exceeded',
+            response: 'Our AI is experiencing high demand. Please try again in a moment.'
+          }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Payment required',
+            response: 'AI service temporarily unavailable. Please contact our team directly.'
+          }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      throw new Error(`AI Gateway error: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Gemini response received');
+    console.log('AI response received');
     
-    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+    const aiResponse = data.choices?.[0]?.message?.content || 
       'I apologize, but I am unable to process your request at the moment. Please contact our team directly.';
 
     return new Response(
