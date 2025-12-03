@@ -16,25 +16,76 @@ export type Database = {
     Tables: {
       contact_submissions: {
         Row: {
-          created_at: string
-          email: string
           id: string
-          message: string
-          name: string
+          created_at: string
+          name: string | null
+          email: string | null
+          phone: string | null
+          message: string | null
+          business_name: string | null
+          business_type: string | null
+          business_size: string | null
+          current_challenges: string | null
+          monthly_budget: string | null
+          services_interested: string[] | null
+          preferred_contact_method: string | null
+          timeline: string | null
         }
         Insert: {
-          created_at?: string
-          email: string
           id?: string
-          message: string
-          name: string
+          created_at?: string
+          name?: string | null
+          email?: string | null
+          phone?: string | null
+          message?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          business_size?: string | null
+          current_challenges?: string | null
+          monthly_budget?: string | null
+          services_interested?: string[] | null
+          preferred_contact_method?: string | null
+          timeline?: string | null
         }
         Update: {
-          created_at?: string
-          email?: string
           id?: string
-          message?: string
-          name?: string
+          created_at?: string
+          name?: string | null
+          email?: string | null
+          phone?: string | null
+          message?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          business_size?: string | null
+          current_challenges?: string | null
+          monthly_budget?: string | null
+          services_interested?: string[] | null
+          preferred_contact_method?: string | null
+          timeline?: string | null
+        }
+        Relationships: []
+      }
+      api_keys: {
+        Row: {
+          id: string
+          created_at: string
+          key_name: string
+          key_value: string
+          is_active: boolean
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          key_name: string
+          key_value: string
+          is_active?: boolean
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          key_name?: string
+          key_value?: string
+          is_active?: boolean
         }
         Relationships: []
       }

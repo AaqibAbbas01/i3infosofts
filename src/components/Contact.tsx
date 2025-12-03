@@ -81,13 +81,43 @@ const Contact = () => {
     }));
   };
 
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    // Allow Indian phone numbers with or without country code
+    const re = /^(\+91[\-\s]?)?[6-9]\d{9}$/;
+    return re.test(phone.replace(/[\s\-]/g, ''));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim()) {
+    // Validation
+    if (!formData.name.trim()) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in name, email, and phone number.",
+        title: "Name Required",
+        description: "Please enter your full name.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.email.trim() || !validateEmail(formData.email)) {
+      toast({
+        title: "Valid Email Required",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.phone.trim() || !validatePhone(formData.phone)) {
+      toast({
+        title: "Valid Phone Required",
+        description: "Please enter a valid 10-digit Indian phone number.",
         variant: "destructive",
       });
       return;
@@ -96,26 +126,34 @@ const Contact = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase
-        .from('contact_submissions')
-        .insert([
-          {
-            name: formData.name.trim(),
-            email: formData.email.trim(),
-            phone: formData.phone.trim(),
-            business_name: formData.businessName.trim() || null,
-            business_type: formData.businessType || null,
-            business_size: formData.businessSize || null,
-            current_challenges: formData.currentChallenges.trim() || null,
-            monthly_budget: formData.monthlyBudget || null,
-            services_interested: formData.servicesInterested.length > 0 ? formData.servicesInterested : null,
-            preferred_contact_method: formData.preferredContactMethod || null,
-            timeline: formData.timeline || null,
-            message: formData.message.trim() || null,
-          }
-        ]);
+      const submissionData = {
+        name: formData.name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
+        business_name: formData.businessName.trim() || null,
+        business_type: formData.businessType || null,
+        business_size: formData.businessSize || null,
+        current_challenges: formData.currentChallenges.trim() || null,
+        monthly_budget: formData.monthlyBudget || null,
+        services_interested: formData.servicesInterested.length > 0 ? formData.servicesInterested : null,
+        preferred_contact_method: formData.preferredContactMethod || null,
+        timeline: formData.timeline || null,
+        message: formData.message.trim() || null,
+      };
 
-      if (error) throw error;
+      console.log('Submitting form data:', submissionData);
+
+      const { data, error } = await supabase
+        .from('contact_submissions')
+        .insert([submissionData])
+        .select();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Submission successful:', data);
 
       toast({
         title: "🎉 Request Submitted Successfully!",
@@ -137,10 +175,20 @@ const Contact = () => {
         timeline: "",
         message: "",
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Form submission error:', error);
+      
+      let errorMessage = "Failed to send. Please try WhatsApp: +91 81781 99664";
+      
+      if (error?.message?.includes('relation') || error?.message?.includes('does not exist')) {
+        errorMessage = "Database not configured. Please contact us on WhatsApp: +91 81781 99664";
+      } else if (error?.code === 'PGRST301') {
+        errorMessage = "Connection error. Please try WhatsApp: +91 81781 99664";
+      }
+      
       toast({
-        title: "Error",
-        description: "Failed to send. Please try WhatsApp: +91 81781 99664",
+        title: "Submission Error",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -150,35 +198,58 @@ const Contact = () => {
 
   return (
     <section id="contact" className="py-20 lg:py-32 bg-background relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 cyber-grid opacity-10" />
-      <div className="absolute top-20 left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+      {/* n8n-style dot grid background */}
+      <div className="absolute inset-0 cyber-grid opacity-30" />
+      
+      {/* Glowing orbs */}
+      <div className="absolute top-20 left-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary/8 rounded-full blur-3xl" />
+      
+      {/* Workflow lines */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-15">
+        <path 
+          d="M 0 30% Q 30% 20% 50% 30% T 100% 25%" 
+          stroke="url(#contactGrad)" 
+          strokeWidth="1.5" 
+          fill="none"
+          strokeDasharray="6 4"
+          className="animate-workflow-line"
+        />
+        <defs>
+          <linearGradient id="contactGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{stopColor: 'hsl(10 85% 62%)', stopOpacity: 0.5}} />
+            <stop offset="100%" style={{stopColor: 'hsl(142 71% 45%)', stopOpacity: 0.5}} />
+          </linearGradient>
+        </defs>
+      </svg>
       
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
-          <div className="inline-block px-4 py-2 rounded-full glass-effect border border-primary/30 text-sm mb-6">
-            <span className="text-gradient font-semibold">Get Started Today</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-effect border border-primary/40 text-sm mb-6">
+            <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+            <span className="text-gradient font-semibold">Start Your Workflow</span>
           </div>
           <h2 className="text-4xl lg:text-6xl font-bold mb-6">
             Let's Build
-            <span className="text-gradient"> Your Future</span>
+            <span className="text-gradient"> Your Automation</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Ready to transform your business? Our AI experts are here to help.
+            Ready to transform your business? Our workflow experts are here to help.
             <br />
             <span className="text-primary font-semibold">Get a response within 24 hours!</span>
           </p>
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <Card className="glass-effect shadow-medium border-primary/20 hover:border-primary/40 transition-all">
+          <Card className="n8n-node shadow-medium border-border/50 hover:border-primary/30 transition-all">
             <CardContent className="pt-8">
               <form onSubmit={handleSubmit} className="space-y-8">
                 
                 {/* Personal Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gradient flex items-center gap-2">
-                    <span className="text-2xl">👤</span> Personal Information
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                    Personal Information
                   </h3>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
@@ -231,7 +302,7 @@ const Contact = () => {
                         id="preferredContact"
                         value={formData.preferredContactMethod}
                         onChange={(e) => setFormData({...formData, preferredContactMethod: e.target.value})}
-                        className="w-full h-12 glass-effect border border-border/50 focus:border-primary rounded-md px-3 bg-background text-foreground"
+                        className="w-full h-12 glass-effect border border-border/50 focus:border-primary rounded-lg px-3 bg-background text-foreground"
                       >
                         <option value="">Select method</option>
                         {contactMethods.map(method => (
@@ -243,9 +314,10 @@ const Contact = () => {
                 </div>
 
                 {/* Business Information */}
-                <div className="space-y-4 pt-6 border-t border-border/30">
+                <div className="space-y-4 pt-6 border-t border-border/20">
                   <h3 className="text-lg font-semibold text-gradient flex items-center gap-2">
-                    <span className="text-2xl">🏢</span> Business Information
+                    <div className="w-2 h-2 rounded-full bg-secondary" />
+                    Business Information
                   </h3>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
@@ -269,7 +341,7 @@ const Contact = () => {
                         id="businessType"
                         value={formData.businessType}
                         onChange={(e) => setFormData({...formData, businessType: e.target.value})}
-                        className="w-full h-12 glass-effect border border-border/50 focus:border-primary rounded-md px-3 bg-background text-foreground"
+                        className="w-full h-12 glass-effect border border-border/50 focus:border-primary rounded-lg px-3 bg-background text-foreground"
                       >
                         <option value="">Select type</option>
                         {businessTypes.map(type => (
@@ -285,7 +357,7 @@ const Contact = () => {
                         id="businessSize"
                         value={formData.businessSize}
                         onChange={(e) => setFormData({...formData, businessSize: e.target.value})}
-                        className="w-full h-12 glass-effect border border-border/50 focus:border-primary rounded-md px-3 bg-background text-foreground"
+                        className="w-full h-12 glass-effect border border-border/50 focus:border-primary rounded-lg px-3 bg-background text-foreground"
                       >
                         <option value="">Select size</option>
                         {businessSizes.map(size => (
@@ -301,7 +373,7 @@ const Contact = () => {
                         id="monthlyBudget"
                         value={formData.monthlyBudget}
                         onChange={(e) => setFormData({...formData, monthlyBudget: e.target.value})}
-                        className="w-full h-12 glass-effect border border-border/50 focus:border-primary rounded-md px-3 bg-background text-foreground"
+                        className="w-full h-12 glass-effect border border-border/50 focus:border-primary rounded-lg px-3 bg-background text-foreground"
                       >
                         <option value="">Select budget range</option>
                         {budgetRanges.map(range => (
@@ -313,31 +385,37 @@ const Contact = () => {
                 </div>
 
                 {/* Services Interested */}
-                <div className="space-y-4 pt-6 border-t border-border/30">
+                <div className="space-y-4 pt-6 border-t border-border/20">
                   <h3 className="text-lg font-semibold text-gradient flex items-center gap-2">
-                    <span className="text-2xl">🎯</span> Services You're Interested In
+                    <div className="w-2 h-2 rounded-full bg-accent" />
+                    Workflow Nodes You Need
                   </h3>
                   <div className="grid md:grid-cols-2 gap-3">
                     {servicesOptions.map(service => (
-                      <div key={service} className="flex items-start gap-3 p-3 rounded-lg glass-effect border border-border/30 hover:border-primary/50 transition-all">
+                      <label 
+                        key={service} 
+                        htmlFor={service}
+                        className="flex items-start gap-3 p-3 rounded-lg n8n-node hover:border-primary/40 transition-all cursor-pointer"
+                      >
                         <Checkbox
                           id={service}
                           checked={formData.servicesInterested.includes(service)}
                           onCheckedChange={() => handleServiceToggle(service)}
-                          className="mt-0.5"
+                          className="mt-0.5 border-primary/50 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                         />
-                        <Label htmlFor={service} className="text-sm cursor-pointer leading-relaxed">
+                        <span className="text-sm leading-relaxed">
                           {service}
-                        </Label>
-                      </div>
+                        </span>
+                      </label>
                     ))}
                   </div>
                 </div>
 
                 {/* Project Details */}
-                <div className="space-y-4 pt-6 border-t border-border/30">
+                <div className="space-y-4 pt-6 border-t border-border/20">
                   <h3 className="text-lg font-semibold text-gradient flex items-center gap-2">
-                    <span className="text-2xl">📋</span> Project Details
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                    Project Details
                   </h3>
                   <div className="space-y-4">
                     <div>
@@ -348,7 +426,7 @@ const Contact = () => {
                         id="timeline"
                         value={formData.timeline}
                         onChange={(e) => setFormData({...formData, timeline: e.target.value})}
-                        className="w-full h-12 glass-effect border border-border/50 focus:border-primary rounded-md px-3 bg-background text-foreground"
+                        className="w-full h-12 glass-effect border border-border/50 focus:border-primary rounded-lg px-3 bg-background text-foreground"
                       >
                         <option value="">Select timeline</option>
                         {timelines.map(time => (
@@ -365,7 +443,7 @@ const Contact = () => {
                         placeholder="E.g., Low website traffic, manual processes taking too much time, need better customer engagement..."
                         value={formData.currentChallenges}
                         onChange={(e) => setFormData({...formData, currentChallenges: e.target.value})}
-                        className="glass-effect border-border/50 focus:border-primary min-h-[100px]"
+                        className="glass-effect border-border/50 focus:border-primary min-h-[100px] rounded-lg"
                         rows={4}
                       />
                     </div>
@@ -378,7 +456,7 @@ const Contact = () => {
                         placeholder="Tell us more about your goals, expectations, or any specific requirements..."
                         value={formData.message}
                         onChange={(e) => setFormData({...formData, message: e.target.value})}
-                        className="glass-effect border-border/50 focus:border-primary min-h-[100px]"
+                        className="glass-effect border-border/50 focus:border-primary min-h-[100px] rounded-lg"
                         rows={4}
                       />
                     </div>
@@ -387,26 +465,30 @@ const Contact = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 shadow-soft text-lg py-6" 
+                  className="w-full bg-primary hover:bg-primary/90 shadow-soft text-lg py-6 font-semibold" 
                   disabled={loading}
                 >
-                  {loading ? "Submitting..." : "🚀 Get Free Consultation"}
+                  <div className="w-2 h-2 rounded-full bg-primary-foreground mr-2 animate-pulse" />
+                  {loading ? "Processing..." : "Start Building Your Workflow"}
                 </Button>
               </form>
               
               {/* Contact Info */}
-              <div className="mt-8 pt-8 border-t border-border/30 text-center">
-                <p className="text-sm text-muted-foreground mb-4">Or reach us directly:</p>
+              <div className="mt-8 pt-8 border-t border-border/20 text-center">
+                <p className="text-sm text-muted-foreground mb-4">Or connect directly:</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-sm">
-                  <a href="mailto:contact@i3infosoft.com" className="text-primary hover:text-secondary transition-colors">
+                  <a href="mailto:contact@i3infosoft.com" className="text-primary hover:text-primary/80 transition-colors flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                     contact@i3infosoft.com
                   </a>
                   <span className="hidden sm:inline text-muted-foreground">•</span>
-                  <a href="tel:+918178199664" className="text-primary hover:text-secondary transition-colors">
+                  <a href="tel:+918178199664" className="text-primary hover:text-primary/80 transition-colors flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary" />
                     +91 81781 99664
                   </a>
                   <span className="hidden sm:inline text-muted-foreground">•</span>
-                  <a href="https://wa.me/918178199664" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-secondary transition-colors">
+                  <a href="https://wa.me/918178199664" target="_blank" rel="noopener noreferrer" className="text-secondary hover:text-secondary/80 transition-colors flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary" />
                     WhatsApp Chat
                   </a>
                 </div>

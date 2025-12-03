@@ -1,208 +1,253 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Zap, TrendingUp } from "lucide-react";
+import { ArrowRight, Bot, Zap, TrendingUp, MessageSquare, Calendar, Phone } from "lucide-react";
 
 const Hero = () => {
   return (
     <section className="relative overflow-hidden bg-gradient-hero min-h-screen flex items-center">
-      {/* Animated background grid */}
-      <div className="absolute inset-0 cyber-grid opacity-30" />
+      {/* n8n-style dot grid background */}
+      <div className="absolute inset-0 cyber-grid opacity-50" />
       
-      {/* Glowing orbs */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}} />
-      
-      {/* Animated AI Bots Walking */}
-      <div className="absolute top-1/4 left-0 w-full h-16 overflow-hidden opacity-40">
-        <div className="animate-bot-walk">
-          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" className="text-primary">
-            <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.6"/>
-            <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.8"/>
-            <path d="M12 2V7M12 17V22M2 7L7 10M17 14L22 17" stroke="currentColor" strokeWidth="1" opacity="0.4"/>
-          </svg>
-        </div>
-      </div>
-      
-      <div className="absolute top-2/3 left-0 w-full h-16 overflow-hidden opacity-30" style={{animationDelay: '3s'}}>
-        <div className="animate-bot-walk" style={{animationDelay: '8s'}}>
-          <svg width="50" height="50" viewBox="0 0 24 24" fill="none" className="text-secondary">
-            <rect x="6" y="6" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" opacity="0.6"/>
-            <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
-            <circle cx="14" cy="10" r="1.5" fill="currentColor"/>
-            <path d="M9 14H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M12 2V6M12 18V22M2 12H6M18 12H22" stroke="currentColor" strokeWidth="1" opacity="0.3"/>
-          </svg>
-        </div>
-      </div>
-
-      {/* Workflow Connection Lines */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20" style={{zIndex: 1}}>
+      {/* Animated workflow connection lines */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{zIndex: 1}}>
+        {/* Curved workflow paths */}
         <path 
-          d="M 100 200 Q 400 100 800 300" 
-          stroke="url(#gradient1)" 
+          d="M -100 200 Q 300 150 600 250 T 1200 180" 
+          stroke="url(#n8nGradient1)" 
           strokeWidth="2" 
           fill="none"
-          strokeDasharray="10 5"
+          strokeDasharray="8 6"
           className="animate-workflow-line"
+          strokeLinecap="round"
         />
         <path 
-          d="M 200 600 Q 600 400 1000 700" 
-          stroke="url(#gradient2)" 
+          d="M -50 450 Q 400 350 700 500 T 1400 420" 
+          stroke="url(#n8nGradient2)" 
           strokeWidth="2" 
           fill="none"
-          strokeDasharray="10 5"
+          strokeDasharray="8 6"
           className="animate-workflow-line"
-          style={{animationDelay: '2s'}}
+          style={{animationDelay: '3s'}}
+          strokeLinecap="round"
+        />
+        <path 
+          d="M 200 700 Q 500 600 900 750 T 1500 680" 
+          stroke="url(#n8nGradient1)" 
+          strokeWidth="2" 
+          fill="none"
+          strokeDasharray="8 6"
+          className="animate-workflow-line"
+          style={{animationDelay: '6s'}}
+          strokeLinecap="round"
         />
         <defs>
-          <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style={{stopColor: 'hsl(190 100% 50%)', stopOpacity: 0.6}} />
-            <stop offset="100%" style={{stopColor: 'hsl(240 100% 60%)', stopOpacity: 0.6}} />
+          <linearGradient id="n8nGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{stopColor: 'hsl(10 85% 62%)', stopOpacity: 0.8}} />
+            <stop offset="100%" style={{stopColor: 'hsl(142 71% 45%)', stopOpacity: 0.6}} />
           </linearGradient>
-          <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style={{stopColor: 'hsl(240 100% 60%)', stopOpacity: 0.6}} />
-            <stop offset="100%" style={{stopColor: 'hsl(280 100% 65%)', stopOpacity: 0.6}} />
+          <linearGradient id="n8nGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{stopColor: 'hsl(142 71% 45%)', stopOpacity: 0.6}} />
+            <stop offset="100%" style={{stopColor: 'hsl(217 91% 60%)', stopOpacity: 0.8}} />
           </linearGradient>
         </defs>
       </svg>
+      
+      {/* Floating n8n-style workflow nodes */}
+      <div className="absolute top-24 left-[8%] w-14 h-14 n8n-node flex items-center justify-center animate-float opacity-60" style={{animationDelay: '0s'}}>
+        <MessageSquare className="w-6 h-6 text-primary" />
+      </div>
+      <div className="absolute top-40 right-[12%] w-14 h-14 n8n-node flex items-center justify-center animate-float opacity-50" style={{animationDelay: '1.5s'}}>
+        <Bot className="w-6 h-6 text-secondary" />
+      </div>
+      <div className="absolute bottom-32 left-[15%] w-14 h-14 n8n-node flex items-center justify-center animate-float opacity-40" style={{animationDelay: '3s'}}>
+        <Zap className="w-6 h-6 text-accent" />
+      </div>
+      <div className="absolute top-[60%] right-[8%] w-12 h-12 n8n-node flex items-center justify-center animate-float opacity-50" style={{animationDelay: '4.5s'}}>
+        <Calendar className="w-5 h-5 text-primary" />
+      </div>
 
-      {/* Floating Data Particles */}
-      {[...Array(8)].map((_, i) => (
+      {/* Glowing orbs - n8n orange theme */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-primary/15 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}} />
+      <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}} />
+
+      {/* Flowing data particles */}
+      {[...Array(6)].map((_, i) => (
         <div
           key={i}
-          className="absolute w-2 h-2 bg-primary/40 rounded-full animate-data-flow"
+          className="absolute w-2 h-2 rounded-full animate-data-flow"
           style={{
-            left: `${10 + i * 12}%`,
-            animationDelay: `${i * 1.5}s`,
-            animationDuration: `${8 + (i % 3) * 2}s`
+            left: `${15 + i * 14}%`,
+            animationDelay: `${i * 1.2}s`,
+            animationDuration: `${5 + (i % 3)}s`,
+            background: i % 2 === 0 ? 'hsl(10 85% 62%)' : 'hsl(142 71% 45%)',
+            boxShadow: i % 2 === 0 ? '0 0 8px hsl(10 85% 62% / 0.6)' : '0 0 8px hsl(142 71% 45% / 0.6)'
           }}
         />
       ))}
 
-      {/* Workflow Nodes */}
-      <div className="absolute top-1/3 right-20 w-32 h-32 opacity-30">
-        <div className="relative w-full h-full animate-pulse-slow">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-8 rounded-lg border-2 border-primary/60 bg-primary/10" />
-          <div className="absolute bottom-0 left-0 w-8 h-8 rounded-lg border-2 border-secondary/60 bg-secondary/10" />
-          <div className="absolute bottom-0 right-0 w-8 h-8 rounded-lg border-2 border-accent/60 bg-accent/10" />
-          <svg className="absolute inset-0 w-full h-full">
-            <line x1="50%" y1="16" x2="25%" y2="100%" stroke="hsl(190 100% 50% / 0.4)" strokeWidth="1.5" strokeDasharray="4 4"/>
-            <line x1="50%" y1="16" x2="75%" y2="100%" stroke="hsl(190 100% 50% / 0.4)" strokeWidth="1.5" strokeDasharray="4 4"/>
-          </svg>
-        </div>
-      </div>
+      {/* Connection dots on workflow lines */}
+      <div className="absolute top-[200px] left-[20%] n8n-dot animate-pulse-slow" style={{animationDelay: '0.5s'}} />
+      <div className="absolute top-[240px] left-[45%] n8n-dot-success animate-pulse-slow" style={{animationDelay: '1s'}} />
+      <div className="absolute top-[200px] right-[25%] n8n-dot animate-pulse-slow" style={{animationDelay: '1.5s'}} />
       
       <div className="container mx-auto px-6 py-20 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left Content */}
           <div className="space-y-8 animate-in fade-in slide-in-from-left duration-700">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-effect border border-primary/30 text-sm mb-4">
-              <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-              <span className="text-primary font-semibold">Powered by Advanced AI</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-effect border border-primary/40 text-sm mb-4">
+              <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+              <span className="text-primary font-semibold">AI Agents & Automation for India</span>
             </div>
             
             <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
-              Transform Your Business with{" "}
-              <span className="text-gradient">
-                AI-Powered Solutions
-              </span>
+              Deploy <span className="text-gradient">AI Agents</span> That Work 24/7
             </h1>
             
             <p className="text-xl lg:text-2xl text-muted-foreground max-w-xl leading-relaxed">
-              India's leading digital transformation partner. We help businesses grow through 
-              <span className="text-primary font-semibold"> cutting-edge AI</span>, 
-              <span className="text-secondary font-semibold"> automation</span>, and 
-              <span className="text-accent font-semibold"> intelligent marketing</span>.
+              WhatsApp chatbots, AI sales agents, voice bots & workflow automation. 
+              <span className="text-primary font-semibold"> Built for Indian businesses</span>. 
+              Start from <span className="text-secondary font-semibold">₹8,000/month</span>.
             </p>
 
-            {/* Key Stats */}
-            <div className="grid grid-cols-3 gap-6 pt-4">
-              <div className="glass-effect rounded-xl p-4 text-center">
-                <div className="text-3xl font-bold text-primary">100+</div>
-                <div className="text-sm text-muted-foreground mt-1">Projects</div>
+            {/* Service highlights */}
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/40 flex items-center justify-center">
+                  <MessageSquare className="w-4 h-4 text-primary" />
+                </div>
+                <span className="text-foreground/90">WhatsApp AI Bots</span>
               </div>
-              <div className="glass-effect rounded-xl p-4 text-center">
-                <div className="text-3xl font-bold text-secondary">5X</div>
-                <div className="text-sm text-muted-foreground mt-1">ROI Average</div>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-8 h-8 rounded-lg bg-secondary/20 border border-secondary/40 flex items-center justify-center">
+                  <Bot className="w-4 h-4 text-secondary" />
+                </div>
+                <span className="text-foreground/90">AI Sales Agents</span>
               </div>
-              <div className="glass-effect rounded-xl p-4 text-center">
-                <div className="text-3xl font-bold text-accent">24/7</div>
-                <div className="text-sm text-muted-foreground mt-1">AI Support</div>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-8 h-8 rounded-lg bg-accent/20 border border-accent/40 flex items-center justify-center">
+                  <Phone className="w-4 h-4 text-accent" />
+                </div>
+                <span className="text-foreground/90">Voice AI Agents</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/40 flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-primary" />
+                </div>
+                <span className="text-foreground/90">Workflow Automation</span>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-4 pt-4">
+              <div className="n8n-node p-4 text-center animate-node-connect" style={{animationDelay: '0s'}}>
+                <div className="text-2xl font-bold text-primary">500+</div>
+                <div className="text-xs text-muted-foreground mt-1">Agents Deployed</div>
+              </div>
+              <div className="n8n-node p-4 text-center animate-node-connect" style={{animationDelay: '0.5s'}}>
+                <div className="text-2xl font-bold text-secondary">1M+</div>
+                <div className="text-xs text-muted-foreground mt-1">Messages/Month</div>
+              </div>
+              <div className="n8n-node p-4 text-center animate-node-connect" style={{animationDelay: '1s'}}>
+                <div className="text-2xl font-bold text-accent">24/7</div>
+                <div className="text-xs text-muted-foreground mt-1">Always Online</div>
               </div>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button size="lg" className="group bg-gradient-to-r from-primary to-secondary hover:opacity-90 shadow-soft hover:shadow-medium transition-all text-lg px-8 py-6">
-                Start Free Consultation
+              <Button size="lg" className="group bg-primary hover:bg-primary/90 shadow-soft hover:shadow-medium transition-all text-lg px-8 py-6 font-semibold">
+                Get Free Demo
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button size="lg" variant="outline" className="glass-effect border-primary/50 hover:border-primary text-lg px-8 py-6">
-                View Success Stories
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="glass-effect border-secondary/50 hover:border-secondary hover:bg-secondary/10 text-lg px-8 py-6 font-semibold"
+                onClick={() => window.open('https://wa.me/918178199664', '_blank')}
+              >
+                <MessageSquare className="mr-2 h-5 w-5 text-secondary" />
+                WhatsApp Us
               </Button>
             </div>
 
             {/* Trust badges */}
             <div className="flex items-center gap-6 pt-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-primary" />
-                <span>Fast Implementation</span>
+                <div className="w-2 h-2 rounded-full bg-secondary" />
+                <span>No coding needed</span>
               </div>
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-secondary" />
-                <span>Guaranteed Results</span>
+                <div className="w-2 h-2 rounded-full bg-primary" />
+                <span>Setup in 48 hours</span>
               </div>
             </div>
           </div>
           
-          {/* Right Visual */}
+          {/* Right Visual - AI Agent Cards */}
           <div className="relative animate-in fade-in slide-in-from-right duration-700">
             <div className="relative">
-              {/* Central hologram effect */}
-              <div className="relative w-full aspect-square glass-effect rounded-3xl p-8 animate-float">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 rounded-3xl animate-glow" />
+              {/* Main workflow canvas */}
+              <div className="relative w-full aspect-square glass-effect rounded-2xl p-6 animate-float border border-border/50">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 rounded-2xl" />
                 
-                {/* Floating cards */}
+                {/* AI Agent cards */}
                 <div className="relative h-full flex flex-col justify-around">
-                  <div className="glass-effect p-6 rounded-2xl border border-primary/30 transform hover:scale-105 transition-all">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                        <Sparkles className="h-5 w-5 text-primary" />
+                  {/* WhatsApp AI Agent */}
+                  <div className="n8n-node p-5 transform hover:scale-105 transition-all group cursor-pointer">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-primary/20 border border-primary/40 flex items-center justify-center group-hover:bg-primary/30 transition-all">
+                        <MessageSquare className="h-6 w-6 text-primary" />
                       </div>
-                      <div>
-                        <div className="font-semibold">AI Chatbots</div>
-                        <div className="text-sm text-muted-foreground">1000+ queries/day</div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-foreground">WhatsApp AI Bot</div>
+                        <div className="text-sm text-muted-foreground">Handle 1000+ queries/day</div>
                       </div>
+                      <div className="n8n-dot" />
                     </div>
                   </div>
 
-                  <div className="glass-effect p-6 rounded-2xl border border-secondary/30 transform hover:scale-105 transition-all ml-12">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
-                        <Zap className="h-5 w-5 text-secondary" />
+                  {/* Connection indicator */}
+                  <div className="flex justify-center my-2">
+                    <div className="w-0.5 h-8 bg-gradient-to-b from-primary to-secondary opacity-60" />
+                  </div>
+
+                  {/* AI Sales Agent */}
+                  <div className="n8n-node p-5 ml-8 transform hover:scale-105 transition-all group cursor-pointer">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-secondary/20 border border-secondary/40 flex items-center justify-center group-hover:bg-secondary/30 transition-all">
+                        <Bot className="h-6 w-6 text-secondary" />
                       </div>
-                      <div>
-                        <div className="font-semibold">Automation</div>
-                        <div className="text-sm text-muted-foreground">Save 20+ hours/week</div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-foreground">AI Sales Agent</div>
+                        <div className="text-sm text-muted-foreground">Qualify & book leads 24/7</div>
                       </div>
+                      <div className="n8n-dot-success" />
                     </div>
                   </div>
 
-                  <div className="glass-effect p-6 rounded-2xl border border-accent/30 transform hover:scale-105 transition-all">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
-                        <TrendingUp className="h-5 w-5 text-accent" />
+                  {/* Connection indicator */}
+                  <div className="flex justify-center my-2 ml-8">
+                    <div className="w-0.5 h-8 bg-gradient-to-b from-secondary to-accent opacity-60" />
+                  </div>
+
+                  {/* Voice AI Agent */}
+                  <div className="n8n-node p-5 transform hover:scale-105 transition-all group cursor-pointer">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-accent/20 border border-accent/40 flex items-center justify-center group-hover:bg-accent/30 transition-all">
+                        <Phone className="h-6 w-6 text-accent" />
                       </div>
-                      <div>
-                        <div className="font-semibold">Digital Marketing</div>
-                        <div className="text-sm text-muted-foreground">5X ROI guaranteed</div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-foreground">Voice AI Agent</div>
+                        <div className="text-sm text-muted-foreground">Answer calls automatically</div>
                       </div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-accent shadow-[0_0_8px_hsl(217_91%_60%_/_0.5)]" />
                     </div>
                   </div>
                 </div>
               </div>
               
-              {/* Orbiting elements */}
-              <div className="absolute -top-4 -right-4 w-20 h-20 bg-primary/20 rounded-full blur-xl animate-pulse" />
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-accent/20 rounded-full blur-xl animate-pulse" style={{animationDelay: '1.5s'}} />
+              {/* Glow effects */}
+              <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/20 rounded-full blur-2xl animate-pulse" />
+              <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-secondary/20 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1.5s'}} />
             </div>
           </div>
         </div>
