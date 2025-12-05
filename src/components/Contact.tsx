@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+
+// n8n Webhook URL for form submissions (Production)
+const N8N_WEBHOOK_URL = "https://i3infosoft.app.n8n.cloud/webhook/da563c38-4e35-4182-a8cb-21dea7a1da8e";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -130,30 +132,35 @@ const Contact = () => {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         phone: formData.phone.trim(),
-        business_name: formData.businessName.trim() || null,
-        business_type: formData.businessType || null,
-        business_size: formData.businessSize || null,
-        current_challenges: formData.currentChallenges.trim() || null,
-        monthly_budget: formData.monthlyBudget || null,
-        services_interested: formData.servicesInterested.length > 0 ? formData.servicesInterested : null,
-        preferred_contact_method: formData.preferredContactMethod || null,
-        timeline: formData.timeline || null,
-        message: formData.message.trim() || null,
+        businessName: formData.businessName.trim() || "",
+        businessType: formData.businessType || "",
+        businessSize: formData.businessSize || "",
+        currentChallenges: formData.currentChallenges.trim() || "",
+        monthlyBudget: formData.monthlyBudget || "",
+        servicesInterested: formData.servicesInterested,
+        preferredContactMethod: formData.preferredContactMethod || "",
+        timeline: formData.timeline || "",
+        message: formData.message.trim() || "",
+        submittedAt: new Date().toISOString(),
+        source: "website_contact_form"
       };
 
-      console.log('Submitting form data:', submissionData);
+      console.log('Submitting to n8n webhook:', submissionData);
 
-      const { data, error } = await supabase
-        .from('contact_submissions')
-        .insert([submissionData])
-        .select();
+      // Send to n8n webhook
+      const response = await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData),
+      });
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      console.log('Submission successful:', data);
+      console.log('Submission successful!');
 
       toast({
         title: "🎉 Request Submitted Successfully!",
@@ -178,17 +185,9 @@ const Contact = () => {
     } catch (error: any) {
       console.error('Form submission error:', error);
       
-      let errorMessage = "Failed to send. Please try WhatsApp: +91 81781 99664";
-      
-      if (error?.message?.includes('relation') || error?.message?.includes('does not exist')) {
-        errorMessage = "Database not configured. Please contact us on WhatsApp: +91 81781 99664";
-      } else if (error?.code === 'PGRST301') {
-        errorMessage = "Connection error. Please try WhatsApp: +91 81781 99664";
-      }
-      
       toast({
         title: "Submission Error",
-        description: errorMessage,
+        description: "Failed to send. Please try WhatsApp: +91 81781 99664",
         variant: "destructive",
       });
     } finally {
